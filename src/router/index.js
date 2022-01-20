@@ -4,6 +4,11 @@ import Home from '../components/Home'
 import Login from '@/components/Login'
 import Welcome from '@/components/Welcome'
 import RouteQuery from '@/components/bus_route/RouteQuery'
+import StationQuery from '@/components/bus_route/StationQuery'
+import RouteDetection from '@/components/bus_route/RouteDetection'
+import BuildQuery from '@/components/infrastructure/BuildQuery'
+import RoutePlan from '@/components/route_plan/RoutePlan'
+import DisableVisual from '@/components/disable/DisableVisual'
 
 Vue.use(VueRouter)
 
@@ -16,7 +21,12 @@ const routes = [
     redirect: '/welcome',
     children: [
       { path: '/welcome', component: Welcome },
-      { path: '/route_query', component: RouteQuery }
+      { path: '/route_query', component: RouteQuery },
+      { path: '/station_query', component: StationQuery },
+      { path: '/route_detection', component: RouteDetection },
+      { path: '/build_query', component: BuildQuery },
+      { path: '/route_plan', component: RoutePlan },
+      { path: '/disable_visual', component: DisableVisual }
     ]
   }
 ]

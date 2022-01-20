@@ -69,25 +69,30 @@ export default {
               path: 'route_query'
             },
             {
-              authName: '路线监测',
+              authName: '站点查询',
               id: 12,
+              path: 'station_query'
+            },
+            {
+              authName: '路线监测',
+              id: 13,
               path: 'route_detection'
             }
           ]
         },
         {
-          authName: '居民分布',
+          authName: '残疾人士分布',
           id: 2,
           children: [
             {
-              authName: '居民热点分布',
+              authName: '残疾人士分布可视化',
               id: 21,
-              path: 'resident_distribution'
+              path: 'disable_visual'
             },
             {
               authName: '居民活动范围',
               id: 22,
-              path: 'resident_area'
+              path: 'disable_area'
             }
           ]
         },
@@ -96,13 +101,18 @@ export default {
           id: 3,
           children: [
             {
-              authName: '基础设施热点分布',
+              authName: '基础设施查询',
               id: 31,
+              path: 'build_query'
+            },
+            {
+              authName: '基础设施热点分布',
+              id: 32,
               path: 'infrastructure_distribution'
             },
             {
               authName: '基础设施影响范围',
-              id: 32,
+              id: 33,
               path: 'infrastructure_impact'
             }
           ]
@@ -114,7 +124,7 @@ export default {
             {
               authName: '路线规划',
               id: 41,
-              path: 'path_planning'
+              path: 'route_plan'
             },
             {
               authName: '路线可行性分析',

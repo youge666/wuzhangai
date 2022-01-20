@@ -7,6 +7,9 @@ module.exports = {
       new CopyWebpackPlugin([{ from: 'node_modules/cesium/Build/Cesium/ThirdParty', to: 'ThirdParty' }]),
       new CopyWebpackPlugin([{ from: 'node_modules/cesium/Build/Cesium/Assets', to: 'Assets' }]),
       new CopyWebpackPlugin([{ from: 'node_modules/cesium/Build/Cesium/Widgets', to: 'Widgets' }])
-    ]
+    ],
+    externals: {
+      AMap: 'AMap' // 表示CDN引入的高德地图
+    }
   }
 }

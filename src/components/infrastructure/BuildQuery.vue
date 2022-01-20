@@ -1,12 +1,12 @@
 <template>
 <div>
-  <div id="container-query" class="query">
-  </div>
-  <div class="input-card1" style='width:18rem;'>
-    <label style='color:grey'>公交线路查询</label>
+  <div id="container-query" class="query"></div>
+  <div id="panel"></div>
+  <div class="input-card" style='width:18rem;'>
+    <label style='color:grey'>基础设施查询</label>
     <div class="input-item">
-      <div class="input-item-prepend"><span class="input-item-text" >线路名称</span></div>
-      <input id='BusLineName' type="text" value='65' >
+      <div class="input-item-prepend"><span class="input-item-text" >名称</span></div>
+      <input id='buildKeyWord' type="text" placeholder='如：学校'>
     </div>
     <input id="search" type="button" class="btn" value="查询" />
   </div>
@@ -15,8 +15,9 @@
 
 <script>
 import AMapLoader from '@amap/amap-jsapi-loader'
+
 export default {
-  name: 'RouteQuery',
+  name: 'BuildQuery',
   data () {
     return {}
   },
@@ -24,7 +25,7 @@ export default {
     AMapLoader.load({
       key: '930ce4106d2b67f6ad8068361445c117', // 申请好的Web端开发者Key，首次调用 load 时必填
       version: '1.4.15', // 指定要加载的 JSAPI 的版本，缺省时默认为 1.4.15
-      plugins: ['AMap.LineSearch'], // 需要使用的的插件列表，如比例尺'AMap.Scale'等
+      plugins: ['AMap.PlaceSearch'], // 需要使用的的插件列表，如比例尺'AMap.Scale'等
       AMapUI: { // 是否加载 AMapUI，缺省不加载
         version: '1.1', // AMapUI 缺省 1.1
         plugins: [] // 需要加载的 AMapUI ui插件
@@ -38,83 +39,24 @@ export default {
         center: [114.482693932, 36.6093079285], // 地图中心点
         zoom: 13 // 地图显示的缩放级别
       })
-      let linesearch
-
-      /* 公交线路查询 */
-      function lineSearch () {
-        const busLineName = document.getElementById('BusLineName').value
-        if (!busLineName) return
-        // 实例化公交线路查询类，只取回一条路线
-        if (!linesearch) {
-          linesearch = new AMap.LineSearch({
-            pageIndex: 1,
-            city: '邯郸',
-            pageSize: 1,
-            extensions: 'all'
-          })
-        }
-        // 搜索“536”相关公交线路
-        linesearch.search(busLineName, function (status, result) {
-          map.clearMap()
-          if (status === 'complete' && result.info === 'OK') {
-            lineSearchCallback(result)
-          } else {
-            alert(result)
-          }
+      var placeSearch
+      AMap.plugin(['AMap.PlaceSearch'], function () {
+        // 构造地点查询类
+        placeSearch = new AMap.PlaceSearch({
+          pageSize: 5, // 单页显示结果条数
+          pageIndex: 1, // 页码
+          city: '1304', // 兴趣点城市
+          citylimit: true, // 是否强制限制在设置的城市内搜索
+          map: map, // 展现结果的地图实例
+          panel: 'panel', // 结果列表将在此容器中进行展示。
+          autoFitView: true // 是否自动调整地图视野使绘制的 Marker点都处于视口的可见范围
         })
+      })
+      // 关键字查询
+      document.getElementById('search').onclick = function () {
+        const stationKeyWord = document.getElementById('buildKeyWord').value
+        placeSearch.search(stationKeyWord)
       }
-      /* 公交路线查询服务返回数据解析概况 */
-      function lineSearchCallback (data) {
-        const lineArr = data.lineInfo
-        const lineNum = data.lineInfo.length
-        if (lineNum === 0) {
-        } else {
-          for (let i = 0; i < lineNum; i++) {
-            const pathArr = lineArr[i].path
-            const stops = lineArr[i].via_stops
-            const startPot = stops[0].location
-            const endPot = stops[stops.length - 1].location
-            if (i === 0) // 作为示例，只绘制一条线路
-            // eslint-disable-next-line brace-style
-            { drawbusLine(startPot, endPot, pathArr) }
-          }
-        }
-      }
-      /* 绘制路线 */
-      function drawbusLine (startPot, endPot, BusArr) {
-        // 绘制起点，终点
-        // eslint-disable-next-line no-new
-        new AMap.Marker({
-          map: map,
-          position: startPot, // 基点位置
-          icon: 'https://webapi.amap.com/theme/v1.3/markers/n/start.png',
-          zIndex: 10,
-          anchor: 'bottom-center'
-        })
-        // eslint-disable-next-line no-new
-        new AMap.Marker({
-          map: map,
-          position: endPot, // 基点位置
-          icon: 'https://webapi.amap.com/theme/v1.3/markers/n/end.png',
-          zIndex: 10,
-          anchor: 'bottom-center'
-        })
-        // 绘制乘车的路线
-        const busPolyline = new AMap.Polyline({
-          map: map,
-          path: BusArr,
-          strokeColor: '#0e329c', // 线颜色
-          strokeOpacity: 0.8, // 线透明度
-          isOutline: true,
-          outlineColor: 'white',
-          strokeWeight: 8// 线宽
-        })
-        // 将 busPolyline 显示在地图中心并自动缩放地图到合适级别。
-        // true表示需要动画过程，[60,200,60,60]表示上下左右避让像素
-        map.setFitView(busPolyline, true, [60, 200, 60, 60])
-      }
-      lineSearch()
-      document.getElementById('search').onclick = lineSearch
     }).catch(e => {
       console.log(e)
     })
@@ -123,11 +65,21 @@ export default {
 </script>
 
 <style scoped lang="scss">
+#panel {
+  position: absolute;
+  background-color: white;
+  max-height: 90%;
+  overflow-y: auto;
+  top: 60px;
+  right: 10px;
+  width: 280px;
+  z-index: 99;
+}
 .query{
   width: 100%;
   height: 877px;
 }
-.input-card1 {
+.input-card {
   position: absolute;
   z-index: 99;
   top: 60px;
@@ -236,5 +188,17 @@ label {
   background-color: #25A5F7;
   color: #fff;
 }
-
+.info {
+  padding: 0.75rem 1.25rem;
+  margin-bottom: 1rem;
+  border-radius: 0.25rem;
+  position: fixed;
+  background-color: white;
+  width: auto;
+  min-width: 22rem;
+  border-width: 0;
+  right: 1rem;
+  box-shadow: 0 2px 6px 0 rgb(114 124 245 / 50%);
+  z-index: 99;
+}
 </style>
